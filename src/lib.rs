@@ -17,7 +17,7 @@
 //! (strategies on top) is assumed to be the "minimizer".
 
 use std::fmt::{self, Display, Formatter};
-use std::io::{self, Read, Write, BufRead, BufReader};
+use std::io::{self, BufRead, BufReader, Read, Write};
 use std::ops::{Index, IndexMut};
 
 use ndarray::{prelude::*, s};
@@ -33,20 +33,24 @@ impl Display for Name {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self.0 {
             Some(name) => write!(f, "{}", name),
-            None => Ok(())
+            None => Ok(()),
         }
     }
 }
 
-
 /// An `Edge` of a schema contains annotations of the schema.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Edge { Left, Top, Right, Bottom }
+pub enum Edge {
+    Left,
+    Top,
+    Right,
+    Bottom,
+}
 use Edge::*;
 
 /// `Labels` are names to be associated with an
 #[derive(Debug, PartialEq, Eq)]
-pub struct Labels(pub [Vec<Name>;4]);
+pub struct Labels(pub [Vec<Name>; 4]);
 
 impl Index<Edge> for Labels {
     type Output = Vec<Name>;
@@ -121,11 +125,14 @@ pub fn read_matrix<T: Read>(r: T) -> io::Result<Vec<Vec<f64>>> {
     let mut rows = Vec::new();
     let r = BufReader::new(r);
     for line in r.lines() {
-        let cols: Vec<f64> = line?.split_whitespace()
-            .map(|f| f.trim().parse().map_err(|e| {
-                let ek = io::ErrorKind::InvalidData;
-                io::Error::new(ek, e)
-            }))
+        let cols: Vec<f64> = line?
+            .split_whitespace()
+            .map(|f| {
+                f.trim().parse().map_err(|e| {
+                    let ek = io::ErrorKind::InvalidData;
+                    io::Error::new(ek, e)
+                })
+            })
             .collect::<io::Result<Vec<f64>>>()?;
         if cols.is_empty() {
             continue;
@@ -161,7 +168,6 @@ pub struct Solution {
 }
 
 impl Schema {
-
     /// Take a nested-`Vec` payoff matrix and make it a `Schema`.
     pub fn from_matrix(mut rows: Vec<Vec<f64>>) -> Self {
         assert!(!rows.is_empty() && !rows[0].is_empty());
@@ -175,28 +181,23 @@ impl Schema {
         let ncols = ncols + 1;
         rows.push((0..ncols).map(|_| -1.0).collect());
         let nrows = rows.len();
-        let mut payoffs = Array2::from_shape_fn(
-            (nrows, ncols),
-            |(i, j)| rows[i][j],
-        );
-        payoffs[(nrows-1, ncols-1)] = 0.0;
+        let mut payoffs =
+            Array2::from_shape_fn((nrows, ncols), |(i, j)| rows[i][j]);
+        payoffs[(nrows - 1, ncols - 1)] = 0.0;
 
         let mut ps = payoffs.slice_mut(s![..-1, ..-1]);
-        let offset = OrderedFloat::into_inner(ps
-            .iter()
-            .cloned()
-            .map(OrderedFloat)
-            .min()
-            .unwrap());
+        let offset = OrderedFloat::into_inner(
+            ps.iter().cloned().map(OrderedFloat).min().unwrap(),
+        );
         for p in ps.iter_mut() {
             *p -= offset;
         }
 
         let names = Labels([
-            (0..nrows-1).map(|i| Name(Some(i))).collect(),
-            (0..ncols-1).map(|i| Name(Some(i))).collect(),
-            (0..nrows-1).map(|_| Name(None)).collect(),
-            (0..ncols-1).map(|_| Name(None)).collect(),
+            (0..nrows - 1).map(|i| Name(Some(i))).collect(),
+            (0..ncols - 1).map(|i| Name(Some(i))).collect(),
+            (0..nrows - 1).map(|_| Name(None)).collect(),
+            (0..ncols - 1).map(|_| Name(None)).collect(),
         ]);
 
         Schema {
@@ -214,19 +215,15 @@ impl Schema {
         // Step 3
         let ps = self.payoffs.slice(s![..-1, ..-1]);
         let (bot, right) = ps.dim();
-        ps
-            .axis_iter(Axis(1))
+        ps.axis_iter(Axis(1))
             .enumerate()
             .filter_map(|(c, col)| {
                 if self.payoffs[(bot, c)] >= 0.0 {
                     return None;
                 }
-                col
-                    .iter()
+                col.iter()
                     .enumerate()
-                    .filter(|&(_, &p)| {
-                        p > 0.0
-                    })
+                    .filter(|&(_, &p)| p > 0.0)
                     .map(|(r, &p)| {
                         // pivot criterion
                         let rp = self.payoffs[(r, right)];
@@ -322,6 +319,10 @@ impl Schema {
         assert!(v > 0.0);
         let value = self.d / v + self.offset;
 
-        Solution { left_strategy, top_strategy, value }
+        Solution {
+            left_strategy,
+            top_strategy,
+            value,
+        }
     }
 }
