@@ -1,0 +1,10 @@
+[package]
+name = "mixed-strategies"
+version = "0.1.0"
+authors = ["Bart Massey <bart@cs.pdx.edu>"]
+edition = "2018"
+
+[dependencies]
+ndarray = "0.12"
+ordered-float = "1.0"
+tabwriter = "1.1"
