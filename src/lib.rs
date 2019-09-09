@@ -65,15 +65,17 @@ impl IndexMut<Edge> for Labels {
 /// Schema describing a two-player hidden information game.
 #[derive(Debug)]
 pub struct Schema {
-    /// Score offset to make the game fair.
+    /// Score offset to make the payoffs start all positive during
+    /// internal calculations. This does not affect the calculated
+    /// value of the game.
     pub offset: f64,
-    /// Current "divisor".
+    /// Current "divisor" for pivot values.
     pub d: f64,
-    /// Strategy "names", given as usize labels along the
-    /// left and top edge of the payoff matrix.
+    /// Strategy "names", given as optional indices along
+    /// the edges of the payoff matrix.
     pub names: Labels,
-    /// Payoff matrix. Note that the dimensions include
-    /// the margins.
+    /// Payoff matrix. Note that the dimensions include the
+    /// margins.
     pub payoffs: Array2<f64>,
 }
 
@@ -120,15 +122,15 @@ impl Display for Schema {
 pub struct Solution {
     /// Value of game.
     pub value: f64,
-    /// Strategy for left player (maximizer).
+    /// Strategy for left player (maximizer, "Blue").
     pub left_strategy: Vec<f64>,
-    /// Strategy for top player (minimizer).
+    /// Strategy for top player (minimizer, "Red").
     pub top_strategy: Vec<f64>,
 }
 
 impl Display for Solution {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        writeln!(f, "value {}", self.value)?;
+        writeln!(f, "value {:.3}", self.value)?;
         let mut show = |name, vals: &[f64]| {
             write!(f, "{}", name)?;
             for (i, v) in vals.iter().enumerate() {
