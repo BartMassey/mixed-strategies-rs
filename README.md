@@ -26,6 +26,16 @@ the implementation are, of course, my own.
 
 Please see the rustdoc for usage of the library crate.
 
+# Haskell
+
+This started out to be a port of my Haskell implementation
+also called
+[mixed-strategies](http://github.com/BartMassey/mixed-strategies).
+If you want Haskell instead of Rust, you can check that out:
+it's quite similar. I gave up on the port when I realized it
+would be easier to reimplement from scratch than to
+understand my old Haskell.
+
 # Author
 
 Bart Massey \<bart.massey@gmail.com\>
