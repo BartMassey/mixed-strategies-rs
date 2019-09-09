@@ -7,7 +7,15 @@
 name = "mixed-strategies"
 version = "0.1.0"
 authors = ["Bart Massey <bart@cs.pdx.edu>"]
+license-file = "LICENSE"
+description = "mixed-strategies game solver"
+homepage = "http://github.com/BartMassey/mixed-strategies-rs"
+repository = "http://github.com/BartMassey/mixed-strategies-rs"
+readme = "README.md"
+keywords = ["game", "solver", "mixed-strategies"]
+categories = ["algorithms", "command-line-utilities", "science"]
 edition = "2018"
+
 
 [dependencies]
 ndarray = "0.12"
