@@ -145,9 +145,8 @@ pub fn read_matrix<T: Read>(r: T) -> io::Result<Vec<Vec<f64>>> {
         return Err(io::Error::new(ek, "empty matrix"));
     }
     let ncols = rows[0].len();
-    let nrows = rows.len();
-    for i in 1..nrows {
-        if rows[i].len() != ncols {
+    for r in &rows[1..] {
+        if r.len() != ncols {
             let ek = io::ErrorKind::InvalidData;
             return Err(io::Error::new(ek, "ragged matrix"));
         }
