@@ -241,29 +241,25 @@ impl Schema {
         // *Compleat Strategyst* p. 222—
 
         // Step 4
-        let mut payoffs = self.payoffs.clone();
+        let (nr, nc) = self.payoffs.dim();
         let p = self.payoffs[(pr, pc)];
         let d = self.d;
         assert!(d != 0.0);
-        for ((r, c), v) in payoffs.indexed_iter_mut() {
-            if (r, c) == (pr, pc) {
-                *v = self.d;
-                continue;
+        for r in 0..nr {
+            for c in 0..nc {
+                if r == pr || c == pc {
+                    continue;
+                }
+                let n = self.payoffs[(r, c)];
+                let nr = self.payoffs[(r, pc)];
+                let nc = self.payoffs[(pr, c)];
+                self.payoffs[(r, c)] = (n * p - nr * nc) / d;
             }
-            if r == pr {
-                continue;
-            }
-            if c == pc {
-                let q = -*v;
-                *v = q;
-                continue;
-            }
-            let n = *v;
-            let nr = self.payoffs[(r, pc)];
-            let nc = self.payoffs[(pr, c)];
-            *v = (n * p - nr * nc) / d;
         }
-        self.payoffs = payoffs;
+        for r in 0..nr {
+            self.payoffs[(r, pc)] = -self.payoffs[(r, pc)];
+        }
+        self.payoffs[(pr, pc)] = d;
         self.d = p;
 
         // Step 5
