@@ -82,6 +82,7 @@ use std::fmt::{self, Display, Formatter};
 use std::io::{self, Write};
 use std::ops::{Index, IndexMut};
 
+pub use ndarray;
 use ndarray::{prelude::*, s};
 use ordered_float::OrderedFloat;
 use tabwriter::*;
