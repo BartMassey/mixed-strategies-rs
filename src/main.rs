@@ -3,7 +3,10 @@
 // Please see the file LICENSE in the source
 // distribution of this software for license terms.
 
-use std::io::{self, BufRead, BufReader, Read};
+use std::io::{self, stdin, BufRead, BufReader, Read};
+use std::process::exit;
+
+use mixed_strategies::*;
 
 /// Read a payoff matrix in textual space-separated form.
 pub fn read_matrix<T: Read>(r: T) -> io::Result<Vec<Vec<f64>>> {
@@ -49,4 +52,14 @@ fn test_read_matrix() {
 }
 
 fn main() {
+    let m = match read_matrix(stdin()) {
+        Ok(m) => m,
+        Err(e) => {
+            eprintln!("could not read payoff matrix: {}", e);
+            exit(1);
+        },
+    };
+    let mut s = Schema::from_matrix(m);
+    let soln = s.solve();
+    print!("{}", soln);
 }
