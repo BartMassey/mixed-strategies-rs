@@ -120,10 +120,26 @@ impl Display for Schema {
 pub struct Solution {
     /// Value of game.
     pub value: f64,
-    /// Strategy for left player.
+    /// Strategy for left player (maximizer).
     pub left_strategy: Vec<f64>,
-    /// Strategy for top player.
+    /// Strategy for top player (minimizer).
     pub top_strategy: Vec<f64>,
+}
+
+impl Display for Solution {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "value {}", self.value)?;
+        let mut show = |name, vals: &[f64]| {
+            write!(f, "{}", name)?;
+            for (i, v) in vals.iter().enumerate() {
+                write!(f, " {}:{:.3}", i, v)?;
+            }
+            writeln!(f)
+        };
+        show("max", &self.left_strategy)?;
+        show("min", &self.top_strategy)?;
+        Ok(())
+    }
 }
 
 impl Schema {
@@ -233,6 +249,8 @@ impl Schema {
         xchg(Right, Top);
     }
 
+    /// Find optimal strategies and game value for the given
+    /// schema.
     pub fn solve(&mut self) -> Solution {
         // Step 6
         while let Some(p) = self.find_pivot() {
