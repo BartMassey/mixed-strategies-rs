@@ -38,7 +38,7 @@ understand my old Haskell.
 
 # Author
 
-Bart Massey \<bart.massey@gmail.com\>
+Bart Massey
 
 # License
 
