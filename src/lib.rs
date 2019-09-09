@@ -212,6 +212,9 @@ impl Display for Solution {
 
 impl Schema {
     /// Take a nested-`Vec` payoff matrix and make it a `Schema`.
+    /// # Panics
+    /// This code will panic if the input matrix is empty
+    /// or the rows are of differing length.
     pub fn from_matrix(mut rows: Vec<Vec<f64>>) -> Self {
         assert!(!rows.is_empty() && !rows[0].is_empty());
         let ncols = rows[0].len();
