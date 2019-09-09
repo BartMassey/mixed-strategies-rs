@@ -320,14 +320,16 @@ impl Schema {
         xchg(Right, Top);
     }
 
-    /// Find optimal strategies and game value for the given
-    /// schema.
-    pub fn solve(&mut self) -> Solution {
+    /// Derive a solution from the schema. Assumes
+    /// that the schema is in fully-reduced form.
+    ///
+    /// # Panics
+    /// Will panic if passed a non-reduced-form
+    /// schema if basic assumptions about the
+    /// schema are violated.
+    pub fn solution(&self) -> Solution {
+        // *Compleat Strategyst* p. 226
         // Step 6
-        while let Some(p) = self.find_pivot() {
-            self.reduce(p);
-        }
-
         let nr = self.names[Left].len();
         let nc = self.names[Top].len();
 
@@ -368,5 +370,20 @@ impl Schema {
             top_strategy,
             value,
         }
+    }
+
+    /// Find optimal strategies and game value for the given
+    /// schema. This is a convenience function that proceeds
+    /// by calling `find_pivot()` and `reduce()` iteratively
+    /// until the schema is fully reduced, then calling
+    /// `solution()` to get the solution.
+    pub fn solve(&mut self) -> Solution {
+        // *Compleat Strategyst* p. 226
+        // Step 6
+        while let Some(p) = self.find_pivot() {
+            self.reduce(p);
+        }
+
+        self.solution()
     }
 }
