@@ -6,11 +6,77 @@
 //! Calculate an optimal mixed strategy given the payoff
 //! matrix of a two-player zero-sum single-round iterated
 //! simultaneous game.  Follows the method of Chapter 6 of
-//! J.D. Williams' [*The Compleat Strategyst*](https://www.rand.org/content/dam/rand/pubs/commercial_books/2007/RAND_CB113-1.pdf)
+//! J.D. Williams' [*The Compleat
+//! Strategyst*](https://www.rand.org/content/dam/rand/pubs/commercial_books/2007/RAND_CB113-1.pdf)
 //! (McGraw-Hill 1954). Throughout, the player playing the
-//! rows (strategies on the left) is assumed to be the
-//! "maximizer" and the player playing the columns
-//! (strategies on top) is assumed to be the "minimizer".
+//! rows (strategies on the left, "Blue" in the text) is
+//! assumed to be the "maximizer" and the player playing the
+//! columns (strategies on top, "Red" in the text) is
+//! assumed to be the "minimizer".
+//! 
+//! The easiest way to use this code is to just call
+//! `Schema::from_matrix()` to set up a new schema and
+//! then `Schema::solve()` to get a solution.
+//!
+//! # Examples
+//!
+//! The first edition of the board game DungeonQuest has a
+//! combat system that is very like rock-scissors-paper. The
+//! player playing the Hero secretly chooses one of "Slash",
+//! "Leap Aside" or "Mighty Blow", the player playing the
+//! Monster does so also. The selections are compared on a
+//! literal payoff matrix to find out how much damage each
+//! side does to the other. (The game is not actually
+//! zero-sum — both players can be damaged on the same turn
+//! — but we will pretend it is here.) The catch is that of
+//! course the Hero should have an edge: examining the
+//! payoff matrix you find that the Hero's mighty blow does
+//! double damage!  (That's patently unfair to the monster;
+//! so sad.)  The overall payoff matrix looks about like this
+//!
+//! ```text,no_run
+//!        M  S  L
+//!     M  0  2 -1
+//!     S -1  0  1
+//!     L  1 -1  0
+//! ```
+//!
+//! The Hero (maximizer) plays the left edge and the
+//! Monster (minimizer) plays the top.
+//!
+//! How much advantage does the Hero have? How should the
+//! Hero and the Monster pick? Let's find out:
+//!
+//! ```
+//! use mixed_strategies::*;
+//!
+//! let payoffs = vec![
+//!     vec![ 0.0,  2.0, -1.0],
+//!     vec![-1.0,  0.0,  1.0],
+//!     vec![ 1.0, -1.0,  0.0],
+//! ];
+//! let mut schema = Schema::from_matrix(payoffs);
+//! let soln = schema.solve();
+//! assert!((soln.value - 1.0/12.0).abs() < 0.0001);
+//! print!("{}", soln);
+//! ```
+//!
+//! The output should look something like this:
+//!
+//! ```text,no_run
+//!     value 0.083
+//!     max 0:0.333 1:0.250 2:0.417
+//!     min 0:0.250 1:0.333 2:0.417
+//! ```
+//!
+//! That says that the Hero should choose Mighty Blow 1/3 of
+//! the time, Slash 1/4 of the time, and Leap Aside the
+//! other 5/12 of the time.  The Monster's best strategy is
+//! the same, except Mighty Blow and Slash are
+//! exchanged. This makes at least superficial sense. If the
+//! players play this way, the expected advantage of the
+//! hero is 1/12: that is, for every 12 rounds played the
+//! Hero will end up about 1 point ahead.
 
 use std::fmt::{self, Display, Formatter};
 use std::io::{self, Write};
