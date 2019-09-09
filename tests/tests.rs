@@ -3,18 +3,9 @@
 // Please see the file LICENSE in the source
 // distribution of this software for license terms.
 
-use std::io;
-
 use ndarray::prelude::*;
 
 use mixed_strategies::*;
-
-#[test]
-fn test_read_matrix() {
-    let f = io::Cursor::new(b"  1 2 \n\n3 4");
-    let m = read_matrix(f).unwrap();
-    assert_eq!(m, vec![vec![1.0, 2.0], vec![3.0, 4.0]]);
-}
 
 #[cfg(test)]
 fn eg_schema() -> Schema {

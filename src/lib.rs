@@ -3,10 +3,6 @@
 // Please see the file LICENSE in the source
 // distribution of this software for license terms.
 
-// [This program is licensed under the "MIT License"]
-// Please see the file COPYING in the source
-// distribution of this software for license terms.
-
 //! Calculate an optimal mixed strategy given the payoff
 //! matrix of a two-player zero-sum single-round iterated
 //! simultaneous game.  Follows the method of Chapter 6 of
@@ -17,7 +13,7 @@
 //! (strategies on top) is assumed to be the "minimizer".
 
 use std::fmt::{self, Display, Formatter};
-use std::io::{self, BufRead, BufReader, Read, Write};
+use std::io::{self, Write};
 use std::ops::{Index, IndexMut};
 
 use ndarray::{prelude::*, s};
@@ -116,42 +112,6 @@ impl Display for Schema {
         let table = write_table().map_err(|_| fmt::Error)?;
         write!(f, "{}", std::str::from_utf8(&table).unwrap())
     }
-}
-
-/// Read a payoff matrix in textual space-separated form.
-pub fn read_matrix<T: Read>(r: T) -> io::Result<Vec<Vec<f64>>> {
-    // This is tedious and awkward and error-prone but I
-    // don't have a better idea. Suggestions welcome.
-    let mut rows = Vec::new();
-    let r = BufReader::new(r);
-    for line in r.lines() {
-        let cols: Vec<f64> = line?
-            .split_whitespace()
-            .map(|f| {
-                f.trim().parse().map_err(|e| {
-                    let ek = io::ErrorKind::InvalidData;
-                    io::Error::new(ek, e)
-                })
-            })
-            .collect::<io::Result<Vec<f64>>>()?;
-        if cols.is_empty() {
-            continue;
-        }
-        rows.push(cols);
-    }
-    assert!(!rows[0].is_empty());
-    if rows.is_empty() {
-        let ek = io::ErrorKind::InvalidData;
-        return Err(io::Error::new(ek, "empty matrix"));
-    }
-    let ncols = rows[0].len();
-    for r in &rows[1..] {
-        if r.len() != ncols {
-            let ek = io::ErrorKind::InvalidData;
-            return Err(io::Error::new(ek, "ragged matrix"));
-        }
-    }
-    Ok(rows)
 }
 
 /// A game solution, given as the value of the game and
