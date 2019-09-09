@@ -265,7 +265,7 @@ impl Schema {
         for (r, &n) in self.names[Right].iter().enumerate() {
             if let Name(Some(sr)) = n {
                 let p = self.payoffs[(r, nc)];
-                assert!(p > 0.0);
+                assert!(p >= 0.0);
                 left_strategy[sr] = p;
                 tr += p;
             }
