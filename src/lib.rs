@@ -56,7 +56,7 @@
 //!     vec![ 1.0, -1.0,  0.0],
 //! ];
 //! let mut schema = Schema::from_matrix(payoffs);
-//! let soln = schema.solve();
+//! let soln = schema.solve().unwrap();
 //! assert!((soln.value - 1.0/12.0).abs() < 0.0001);
 //! print!("{}", soln);
 //! ```
@@ -321,14 +321,11 @@ impl Schema {
         xchg(Right, Top);
     }
 
-    /// Derive a solution from the schema. Assumes
-    /// that the schema is in fully-reduced form.
-    ///
-    /// # Panics
-    /// Will panic if passed a non-reduced-form
-    /// schema if basic assumptions about the
-    /// schema are violated.
-    pub fn solution(&self) -> Solution {
+    /// Derive a solution from the schema. Assumes that the
+    /// schema is in fully-reduced form.  Returns some
+    /// solution if possible, and `None` when the input does
+    /// not allow computing a solution.
+    pub fn solution(&self) -> Option<Solution> {
         // *Compleat Strategyst* p. 226
         // Step 6
         let nr = self.names[Left].len();
@@ -363,22 +360,26 @@ impl Schema {
         }
 
         let v = self.payoffs[(nr, nc)];
-        assert!(v > 0.0);
+        if v <= 0.0 {
+            return None;
+        }
         let value = self.d / v + self.offset;
 
-        Solution {
+        Some(Solution {
             left_strategy,
             top_strategy,
             value,
-        }
+        })
     }
 
     /// Find optimal strategies and game value for the given
     /// schema. This is a convenience function that proceeds
     /// by calling `find_pivot()` and `reduce()` iteratively
     /// until the schema is fully reduced, then calling
-    /// `solution()` to get the solution.
-    pub fn solve(&mut self) -> Solution {
+    /// `solution()` to get the solution. Returns
+    /// some solution, or `None` if the input schema
+    /// is degenerate.
+    pub fn solve(&mut self) -> Option<Solution> {
         // *Compleat Strategyst* p. 226
         // Step 6
         while let Some(p) = self.find_pivot() {

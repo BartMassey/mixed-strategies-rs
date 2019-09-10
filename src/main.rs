@@ -60,6 +60,11 @@ fn main() {
         },
     };
     let mut s = Schema::from_matrix(m);
-    let soln = s.solve();
-    print!("{}", soln);
+    match s.solve() {
+        Some(soln) => print!("{}", soln),
+        None => {
+            println!("no solution");
+            exit(1);
+        },
+    }
 }

@@ -116,7 +116,7 @@ fn test_soln_schema() {
 fn test_solve() {
     // *Compleat Strategyst* p. 229
     let mut s = eg_schema();
-    let soln = s.solve();
+    let soln = s.solve().unwrap();
     fn eqish(v1: f64, v2: f64) -> bool {
         (v1 - v2).abs() < 0.00001
     }
