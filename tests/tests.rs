@@ -123,12 +123,12 @@ fn test_solve() {
     assert!(eqish(soln.value, 14.0 / 3.0));
 
     let left = vec![1.0 / 3.0, 0.0, 2.0 / 3.0];
-    for (&s, &e) in soln.left_strategy.iter().zip(left.iter()) {
-        assert!(eqish(s, e));
+    for &(s, p) in soln.left_strategy.iter() {
+        assert!(eqish(left[s], p));
     }
 
     let top = vec![0.0, 1.0 / 6.0, 5.0 / 6.0];
-    for (&s, &e) in soln.top_strategy.iter().zip(top.iter()) {
-        assert!(eqish(s, e));
+    for &(s, p) in soln.top_strategy.iter() {
+        assert!(eqish(top[s], p));
     }
 }

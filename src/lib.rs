@@ -190,17 +190,21 @@ pub struct Solution {
     /// Value of game.
     pub value: f64,
     /// Strategy for left player (maximizer, "Blue").
-    pub left_strategy: Vec<f64>,
+    /// Each entry is a strategy name (number) and
+    /// the probability with which to play it.
+    pub left_strategy: Vec<(usize, f64)>,
     /// Strategy for top player (minimizer, "Red").
-    pub top_strategy: Vec<f64>,
+    /// Each entry is a strategy name (number) and
+    /// the probability with which to play it.
+    pub top_strategy: Vec<(usize, f64)>,
 }
 
 impl Display for Solution {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, "value {:.3}", self.value)?;
-        let mut show = |name, vals: &[f64]| {
+        let mut show = |name, vals: &[(usize, f64)]| {
             write!(f, "{}", name)?;
-            for (i, v) in vals.iter().enumerate() {
+            for &(i, v) in vals.iter() {
                 write!(f, " {}:{:.3}", i, v)?;
             }
             writeln!(f)
@@ -332,32 +336,34 @@ impl Schema {
         let nc = self.names[Top].len();
 
         let mut tr = 0.0;
-        let mut left_strategy = vec![0.0; nr];
+        let mut left_strategy = Vec::new();
         for (r, &n) in self.names[Right].iter().enumerate() {
             if let Name(Some(sr)) = n {
                 let p = self.payoffs[(r, nc)];
                 assert!(p >= 0.0);
-                left_strategy[sr] = p;
+                left_strategy.push((sr, p));
                 tr += p;
             }
         }
         for s in &mut left_strategy {
-            *s /= tr;
+            (*s).1 /= tr;
         }
+        left_strategy.sort_by_key(|e| e.0);
 
         let mut tc = 0.0;
-        let mut top_strategy = vec![0.0; nc];
+        let mut top_strategy = Vec::new();
         for (c, &n) in self.names[Bottom].iter().enumerate() {
             if let Name(Some(sc)) = n {
                 let p = self.payoffs[(nr, c)];
                 assert!(p > 0.0);
-                top_strategy[sc] = p;
+                top_strategy.push((sc, p));
                 tc += p;
             }
         }
         for s in &mut top_strategy {
-            *s /= tc;
+            (*s).1 /= tc;
         }
+        top_strategy.sort_by_key(|e| e.0);
 
         let v = self.payoffs[(nr, nc)];
         if v <= 0.0 {
