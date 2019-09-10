@@ -26,6 +26,23 @@ the implementation are, of course, my own.
 
 Please see the rustdoc for usage of the library crate.
 
+# Installation and usage
+
+Example session (for a rock-scissor-paper game):
+
+```
+$ cargo install --git https://github.com/BartMassey/mixed-strategies-rs
+...
+   Installed package `mixed-strategies v0.1.0 (...)` (executable `mixed-strategies`)
+   
+$ printf -- '0 1 -1\n   -1 0 1\n   1 -1 0\n' | mixed-strategies  
+value 0.000
+max 0:0.333 1:0.333 2:0.333
+min 0:0.333 1:0.333 2:0.333
+```
+
+Meaning expected game outgome is neutral for both players, and each player should choose row (column) with equal probability.
+
 # Haskell
 
 This started out to be a port of my Haskell implementation
